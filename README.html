@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stock Guru — Project Ledger</title>
+<link rel="icon" href="site-assets/stockGuruFavicon.png" />
+<style>
+  :root{
+    --paper: #EDE6D4;
+    --paper-dark: #E4DBC5;
+    --ink: #23261F;
+    --ink-soft: #4A4B3F;
+    --brass: #8A6A2C;
+    --brass-light: #B9974E;
+    --rule: rgba(35,38,31,0.28);
+    --ok: #3E5C3A;
+    --warn: #8A5A2C;
+    --bad: #7A3630;
+    --maxw: 760px;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin: 0;
+    background:
+      repeating-linear-gradient(
+        var(--paper) 0px,
+        var(--paper) 27px,
+        var(--paper-dark) 28px
+      );
+    color: var(--ink);
+    font-family: "Times New Roman", Times, serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before{
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 78px, rgba(122,54,48,0.18) 79px, rgba(122,54,48,0.18) 80px, transparent 81px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  main{
+    position: relative;
+    z-index: 1;
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 5rem 1.75rem 6rem 4.5rem;
+  }
+
+  @media (max-width: 640px){
+    main{ padding: 3rem 1.25rem 4rem 2.25rem; }
+    body::before{ display: none; }
+  }
+
+  /* ---------- Cover ---------- */
+  .cover{
+    text-align: center;
+    padding-bottom: 3rem;
+    margin-bottom: 3rem;
+    border-bottom: 1.5px solid var(--rule);
+  }
+
+  .cover .kicker{
+    letter-spacing: 0.35em;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    color: var(--brass);
+    margin-bottom: 1.4rem;
+  }
+
+  .cover h1{
+    font-size: 3.2rem;
+    font-weight: 400;
+    margin: 0 0 0.4rem;
+    letter-spacing: 0.02em;
+  }
+
+  .cover .devanagari{
+    font-size: 1.9rem;
+    color: var(--brass);
+  }
+
+  .cover .sub{
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--ink-soft);
+    margin-top: 0.9rem;
+  }
+
+  .cover .tagline{
+    margin-top: 0.6rem;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+
+  .cover .stamp-row{
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+  }
+
+  .stamp{
+    border: 1px solid var(--brass);
+    color: var(--brass);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.75rem;
+    border-radius: 2px;
+  }
+
+  .cover img.mark{
+    width: 58px;
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+    filter: sepia(1) saturate(1.4) hue-rotate(-10deg) brightness(0.4);
+  }
+
+  /* ---------- Section scaffolding ---------- */
+  section{
+    margin-bottom: 3.4rem;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  section.in-view{
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section-label{
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .section-label .num{
+    font-size: 0.85rem;
+    color: var(--brass);
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+
+  .section-label h2{
+    font-size: 1.55rem;
+    font-weight: 400;
+    margin: 0;
+    letter-spacing: 0.01em;
+  }
+
+  .section-label::after{
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid var(--rule);
+    transform: translateY(-4px);
+  }
+
+  p{ margin: 0 0 1rem; color: var(--ink); }
+  p.lede{ color: var(--ink-soft); }
+
+  code{
+    font-family: "Times New Roman", Times, serif;
+    font-style: italic;
+    background: rgba(138,106,44,0.12);
+    padding: 0.05rem 0.3rem;
+    border-radius: 2px;
+  }
+
+  /* ---------- Ledger rows (features / highlights) ---------- */
+  .ledger{ list-style: none; margin: 0; padding: 0; }
+
+  .ledger li{
+    display: flex;
+    gap: 1rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px dotted var(--rule);
+    align-items: baseline;
+  }
+  .ledger li:last-child{ border-bottom: none; }
+
+  .ledger .term{
+    flex: 0 0 auto;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+
+  .ledger .leader{
+    flex: 1;
+    border-bottom: 1px dotted var(--rule);
+    transform: translateY(-5px);
+    min-width: 12px;
+  }
+
+  .ledger .desc{
+    flex: 0 1 62%;
+    color: var(--ink-soft);
+    text-align: left;
+  }
+
+  @media (max-width: 640px){
+    .ledger li{ flex-direction: column; gap: 0.25rem; }
+    .ledger .leader{ display: none; }
+    .ledger .desc{ flex-basis: auto; }
+  }
+
+  /* ---------- Tables ---------- */
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.5rem 0 1rem;
+  }
+  th, td{
+    text-align: left;
+    padding: 0.65rem 0.7rem;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  th{
+    font-weight: bold;
+    border-bottom: 1.5px solid var(--ink);
+  }
+  tr:last-child td{ border-bottom: none; }
+
+  /* ---------- Workflow diagram (signature element) ---------- */
+  .workflow{
+    border: 1px solid var(--rule);
+    padding: 2.2rem 1.4rem 1.6rem;
+    position: relative;
+    background: rgba(255,255,255,0.15);
+  }
+
+  .workflow .caption{
+    font-size: 0.78rem;
+    color: var(--brass);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1.4rem;
+    text-align: center;
+  }
+
+  .flow-row{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-bottom: 0.4rem;
+  }
+
+  .flow-node{
+    border: 1px solid var(--ink);
+    padding: 0.55rem 0.9rem;
+    font-size: 0.85rem;
+    text-align: center;
+    background: var(--paper);
+    min-width: 140px;
+    opacity: 0;
+    transform: scale(0.92);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  section.in-view .flow-node{ opacity: 1; transform: scale(1); }
+  section.in-view .flow-node:nth-child(1){ transition-delay: 0.05s; }
+  section.in-view .flow-node:nth-child(3){ transition-delay: 0.35s; }
+  section.in-view .flow-node:nth-child(5){ transition-delay: 0.65s; }
+
+  .flow-arrow{
+    width: 46px;
+    height: 20px;
+    flex: 0 0 auto;
+  }
+  .flow-arrow svg{ width: 100%; height: 100%; display: block; }
+  .flow-arrow path{
+    stroke: var(--brass);
+    stroke-width: 1.6;
+    fill: none;
+    stroke-dasharray: 60;
+    stroke-dashoffset: 60;
+    transition: stroke-dashoffset 0.6s ease 0.2s;
+  }
+  section.in-view .flow-arrow path{ stroke-dashoffset: 0; }
+
+  .flow-branch{
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    margin: 1.6rem 0 0.6rem;
+    letter-spacing: 0.05em;
+  }
+
+  .flow-actions{
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .flow-actions .flow-node{
+    min-width: 110px;
+    font-size: 0.78rem;
+    border-style: dashed;
+  }
+
+  @keyframes ink-pulse{
+    0%, 100% { box-shadow: 0 0 0 rgba(138,106,44,0); }
+    50% { box-shadow: 0 0 0 3px rgba(138,106,44,0.12); }
+  }
+  .flow-node.pulse{ animation: ink-pulse 2.6s ease-in-out infinite; }
+
+  @media (max-width: 640px){
+    .flow-row{ flex-direction: column; }
+    .flow-arrow{ width: 20px; height: 40px; transform: rotate(90deg); }
+  }
+
+  /* ---------- Notes / limitations box ---------- */
+  .note-box{
+    border-left: 3px solid var(--brass);
+    padding: 0.9rem 1.2rem;
+    background: rgba(138,106,44,0.07);
+  }
+  .note-box p:last-child{ margin-bottom: 0; }
+
+  /* ---------- Roadmap ---------- */
+  .roadmap{ list-style: none; margin: 0; padding: 0; }
+  .roadmap li{
+    padding: 0.4rem 0;
+    padding-left: 1.6rem;
+    position: relative;
+    color: var(--ink-soft);
+  }
+  .roadmap li::before{
+    content: "☐";
+    position: absolute;
+    left: 0;
+    color: var(--brass);
+  }
+
+  /* ---------- Footer ---------- */
+  footer{
+    border-top: 1.5px solid var(--rule);
+    padding-top: 1.8rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+  footer .sig{
+    font-style: italic;
+    font-size: 1.15rem;
+    margin-bottom: 0.4rem;
+    color: var(--ink);
+  }
+
+  a{ color: var(--brass); }
+
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation: none !important;
+      transition: none !important;
+    }
+    section, .flow-node, .flow-arrow path{ opacity: 1 !important; transform: none !important; stroke-dashoffset: 0 !important; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <div class="cover">
+    <img class="mark" src="site-assets/stockGuruFavicon.png" alt="Stock Guru mark" />
+    <div class="kicker">Project Documentation</div>
+    <h1>Stock Guru</h1>
+    <div class="devanagari">स्टॉक गुरु</div>
+    <div class="sub">A Client-Side Inventory Management Dashboard</div>
+    <div class="tagline">Stock ka hisab, bilkul laajawab — inventory accounting, done right.</div>
+    <div class="stamp-row">
+      <span class="stamp">HTML5</span>
+      <span class="stamp">CSS3</span>
+      <span class="stamp">JavaScript</span>
+      <span class="stamp">No Framework</span>
+      <span class="stamp">MIT License</span>
+    </div>
+  </div>
+
+  <section>
+    <div class="section-label"><span class="num">I.</span><h2>Overview</h2></div>
+    <p><strong>Stock Guru</strong> is a lightweight, front-end inventory management dashboard built entirely with vanilla HTML, CSS, and JavaScript. It allows a shop owner, small business, or individual to record products, track stock levels, monitor inventory value, and manage day-to-day stock operations directly from the browser — with no server, no database, and no external dependency required to run it.</p>
+    <p>The name reflects its purpose: managing <strong>stock</strong> in the sense of <strong>inventory</strong> — quantities, categories, and pricing of physical goods — and is unrelated to financial markets or stock trading. This is stated plainly here so there is no confusion for a reader encountering the name for the first time.</p>
+    <p class="lede">It was built to demonstrate that a genuinely useful, well-considered tool can be created using only the fundamentals of the web platform: the DOM, the Web Storage API, and plain JavaScript logic — without reaching for a framework, a build tool, or a backend.</p>
+  </section>
+
+  <section>
+    <div class="section-label"><span class="num">II.</span><h2>Why This Project Exists</h2></div>
+    <p>Most portfolio projects reach for a framework before the fundamentals are proven. Stock Guru intentionally does the opposite. It was built as a demonstration of core front-end engineering competence:</p>
+    <ul class="ledger">
+      <li><span class="term">Direct DOM control</span><span class="leader"></span><span class="desc">No virtual DOM, no templating engine — every update is written by hand.</span></li>
+      <li><span class="term">Single source of truth</span><span class="leader"></span><span class="desc">Local storage is read fresh across two separate HTML pages, never trusted from memory alone.</span></li>
+      <li><span class="term">Derived state</span><span class="leader"></span><span class="desc">Dashboard totals and stock status are computed on demand, never cached and left to drift.</span></li>
+      <li><span class="term">Original identity</span><span class="leader"></span><span class="desc">A deliberate visual language in place of a default component library look.</span></li>
+    </ul>
+    <p class="lede" style="margin-top:1.1rem;">For a recruiter or hiring manager, the value here is not that it reinvents inventory software. It is that every interaction — the count rising on the dashboard, the badge changing colour, the table re-sorting — is wired by hand, which makes the underlying logic fully inspectable in the source rather than hidden inside a dependency.</p>
+  </section>
+
+  <section>
+    <div class="section-label"><span class="num">III.</span><h2>Core Features</h2></div>
+    <ul class="ledger">
+      <li><span class="term">Live dashboard</span><span class="leader"></span><span class="desc">Total products, low-stock count, out-of-stock count, and total inventory value, recalculated on every change.</span></li>
+      <li><span class="term">Add product form</span><span class="leader"></span><span class="desc">A dedicated page with field validation that rejects incomplete submissions.</span></li>
+      <li><span class="term">Persistent storage</span><span class="leader"></span><span class="desc">Inventory survives page refreshes and browser restarts on the same device.</span></li>
+      <li><span class="term">Status badges</span><span class="leader"></span><span class="desc">Every product is labelled In Stock, Low Stock, or Out of Stock automatically.</span></li>
+      <li><span class="term">Search</span><span class="leader"></span><span class="desc">Instant, case-insensitive lookup of a product by name.</span></li>
+      <li><span class="term">Category filter</span><span class="leader"></span><span class="desc">Narrow the table to a single category such as Electronics or Networking.</span></li>
+      <li><span class="term">Multi-criteria sort</span><span class="leader"></span><span class="desc">By name, price, quantity, or insertion order, without mutating the underlying dataset.</span></li>
+      <li><span class="term">Delete product</span><span class="leader"></span><span class="desc">Removes an item with an immediate refresh of table and dashboard metrics.</span></li>
+      <li><span class="term">Currency formatting</span><span class="leader"></span><span class="desc">Indian numbering conventions with compact notation for large totals.</span></li>
+      <li><span class="term">Responsive layout</span><span class="leader"></span><span class="desc">A dedicated mobile breakpoint reflows the interface into a single column.</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-label"><span class="num">IV.</span><h2>Engineering Highlights and Unique Concepts</h2></div>
+    <p class="lede">Anyone can build a form that writes to local storage. The decisions below are what separate this implementation from a tutorial copy.</p>
+    <ul class="ledger">
+      <li><span class="term">Re-read on every operation</span><span class="leader"></span><span class="desc">Every function — <code>renderTable</code>, <code>updateDashboardCards</code>, <code>searchItem</code>, <code>filterCategory</code>, <code>sortProducts</code>, <code>deleteProduct</code> — independently re-reads from storage before acting, so the UI can never show data that is stale relative to what is actually persisted.</span></li>
+      <li><span class="term">Non-destructive sorting</span><span class="leader"></span><span class="desc">Sorting operates on a shallow copy of the array, so the original insertion order and IDs are always preserved.</span></li>
+      <li><span class="term">Self-incrementing identity</span><span class="leader"></span><span class="desc">Product IDs are derived from the last stored item at load time, keeping identity stable across sessions without a database.</span></li>
+      <li><span class="term">Threshold-driven status</span><span class="leader"></span><span class="desc">Stock status is computed at render time from a single quantity value, so the business rule lives in exactly one place.</span></li>
+      <li><span class="term">Typographic hierarchy</span><span class="leader"></span><span class="desc">A display face for headings, a barcode-styled face for the tagline, and a monospaced face for tabular data — each chosen with intent.</span></li>
+      <li><span class="term">Bilingual identity</span><span class="leader"></span><span class="desc">An English product name paired with a Hindi tagline, a deliberate localization choice.</span></li>
+      <li><span class="term">CSS-only motion</span><span class="leader"></span><span class="desc">The animated background grid uses a single keyframe rule, with no JavaScript animation loop.</span></li>
+      <li><span class="term">Zero build step</span><span class="leader"></span><span class="desc">The application runs by opening an HTML file — no install, no bundler, no transpiler.</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-label"><span class="num">V.</span><h2>Application Workflow</h2></div>
+    <p class="lede">The diagram traces how a single product moves through the system, from data entry to being reflected across the dashboard.</p>
+    <div class="workflow">
+      <div class="caption">Product Lifecycle</div>
+
+      <div class="flow-row">
+        <div class="flow-node pulse">Add Product form</div>
+        <div class="flow-arrow"><svg viewBox="0 0 46 20"><path d="M2 10 H40 M32 3 L42 10 L32 17"/></svg></div>
+        <div class="flow-node">Validate fields</div>
+        <div class="flow-arrow"><svg viewBox="0 0 46 20"><path d="M2 10 H40 M32 3 L42 10 L32 17"/></svg></div>
+        <div class="flow-node">Save to Local Storage</div>
+      </div>
+
+      <div class="flow-branch">↓ read on load ↓</div>
+
+      <div class="flow-row">
+        <div class="flow-node pulse">Dashboard render</div>
+      </div>
+
+      <div class="flow-branch">responds to</div>
+
+      <div class="flow-actions">
+        <div class="flow-node">Search</div>
+        <div class="flow-node">Filter</div>
+        <div class="flow-node">Sort</div>
+        <div class="flow-node">Delete</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label"><span class="num">VI.</span><h2>Technology Stack</h2></div>
+    <table>
+      <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+      <tr><td>Structure</td><td>HTML5</td><td>Semantic markup for the dashboard and form pages</td></tr>
+      <tr><td>Styling</td><td>CSS3</td><td>Layout, responsive breakpoints, glassmorphism, keyframe animation</td></tr>
+      <tr><td>Behaviour</td><td>JavaScript (ES6+)</td><td>DOM manipulation, event handling, data logic</td></tr>
+      <tr><td>Persistence</td><td>Web Storage API</td><td>Client-side data storage, no backend required</td></tr>
+      <tr><td>Iconography</td><td>Remix Icon</td><td>Interface icons via CDN</td></tr>
+      <tr><td>Typography</td><td>Yuyu Short, Libre Barcode 128 Text, Space Mono</td><td>Display, brand, and data typefaces in the live application</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <div class="section-label"><span class="num">VII.</span><h2>Project Structure</h2></div>
+    <table>
+      <tr><td>index.html</td><td>Dashboard: metrics, search, filter, sort, product table</td></tr>
+      <tr><td>form.html</td><td>Add Product page with validated input form</td></tr>
+      <tr><td>app.js</td><td>Application logic — storage, rendering, search, filter, sort</td></tr>
+      <tr><td>style.css</td><td>Full stylesheet, animations, and responsive rules</td></tr>
+      <tr><td>assets/</td><td>Static image assets, including the application mark</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <div class="section-label"><span class="num">VIII.</span><h2>Getting Started</h2></div>
+    <p>No installation, package manager, or build process is required.</p>
+    <ul class="ledger">
+      <li><span class="term">1.</span><span class="leader"></span><span class="desc">Clone the repository — <code>git clone https://github.com/suman-das07/stock-guru.git</code></span></li>
+      <li><span class="term">2.</span><span class="leader"></span><span class="desc">Open <code>index.html</code> directly in a web browser.</span></li>
+      <li><span class="term">3.</span><span class="leader"></span><span class="desc">Use "Add Item" to record a product, then return to the dashboard to see it reflected instantly.</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-label"><span class="num">IX.</span><h2>Design System</h2></div>
+    <p class="lede">The live application follows a dark, glass-panel aesthetic with a single accent colour reserved for primary actions and healthy stock status.</p>
+    <table>
+      <tr><th>Element</th><th>Choice</th><th>Reasoning</th></tr>
+      <tr><td>Background</td><td>Charcoal with animated dotted grid</td><td>Reduces visual fatigue on a dashboard viewed for long periods</td></tr>
+      <tr><td>Cards &amp; table</td><td>Semi-transparent panels, backdrop blur</td><td>Creates depth without heavy borders or shadows</td></tr>
+      <tr><td>Accent colour</td><td>Signal green</td><td>Reserved for primary actions and healthy stock, so it always reads as "good"</td></tr>
+      <tr><td>Data typeface</td><td>Monospace</td><td>Keeps prices and quantities visually aligned in the table</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <div class="section-label"><span class="num">X.</span><h2>Known Limitations and Honest Scope</h2></div>
+    <div class="note-box">
+      <p>This section exists so that anyone evaluating the project, technically or otherwise, understands exactly what it is and is not.</p>
+      <p>Data is stored per browser, on a single device — it is not synced across devices or shared between users. There is no authentication layer or access control. There is no backend API or database; all logic runs client-side. Clearing browser storage will permanently remove all recorded inventory data. The project is intentionally scoped as a front-end demonstration, not a production inventory system for a live business.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label"><span class="num">XI.</span><h2>Roadmap</h2></div>
+    <ul class="roadmap">
+      <li>Optional backend with a real database for multi-device sync</li>
+      <li>User accounts and role-based access</li>
+      <li>Edit-in-place for existing products, alongside add and delete</li>
+      <li>CSV export of the current inventory table</li>
+      <li>Low-stock notification alerts</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-label"><span class="num">XII.</span><h2>Contributing &amp; License</h2></div>
+    <p>Issues and pull requests are welcome. For significant changes, please open an issue first to discuss the proposed direction.</p>
+    <p class="lede">Distributed under the MIT License.</p>
+  </section>
+
+  <footer>
+    <div class="sig">Suman Das</div>
+    <div><a href="https://github.com/suman-das07/stock-guru">github.com/suman-das07/stock-guru</a></div>
+  </footer>
+
+</main>
+
+<script>
+  const sections = document.querySelectorAll('section');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in-view');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  sections.forEach(s => io.observe(s));
+</script>
+
+</body>
+</html>
